@@ -22,7 +22,7 @@ AgenticPOIBench bridges this gap by providing:
   <img src="pics/figure1.jpg" alt="Figure 1" width="80%" />
 </p>
 
-*Figure 1: Benchmark construction overview.*
+<p align="center"><em>Figure 1: Benchmark construction overview.</em></p>
 
 ### Real-world Intent Distribution
 
