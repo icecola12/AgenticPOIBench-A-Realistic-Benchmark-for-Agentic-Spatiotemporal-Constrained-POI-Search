@@ -34,11 +34,11 @@ We employ a multi-agent collaborative framework to transform real-world signals 
 
 | Agent | Role |
 |-------|------|
-| **Planner** | Constructs verifiable POI search scenarios grounded in seed constraints, identifies ground-truth POIs via MCP tools, and generates verification protocols |
-| **Error Checking** | Validates linguistic coherence, constraint coverage, and executes tool calls to confirm POI validity, initiating refinement loops when discrepancies arise |
+| **Planner Agent** | Constructs verifiable POI search scenarios grounded in seed constraints, identifies ground-truth POIs via MCP tools, and generates verification protocols |
+| **Error Checking Agent** | Validates linguistic coherence, constraint coverage, and executes tool calls to confirm POI validity, initiating refinement loops when discrepancies arise |
 | **User Simulator** | Converts static instructions into dynamic, multi-turn dialogues with progressive constraint disclosure, mimicking authentic exploratory search behavior |
-| **Solving** | Acts as the agent under test using randomly assigned SOTA models to prevent benchmark bias toward specific failure modes |
-| **Quality Control** | Retains instances where the Solving Agent fails to retrieve valid POIs, ensuring the benchmark |
+| **Solving Agent** | Acts as the agent under test using randomly assigned SOTA models to prevent benchmark bias toward specific failure modes |
+| **Quality Control Agent** | Retains instances where the Solving Agent fails to retrieve valid POIs, ensuring the benchmark is difficult|
 
 ### Expert Validation
 
