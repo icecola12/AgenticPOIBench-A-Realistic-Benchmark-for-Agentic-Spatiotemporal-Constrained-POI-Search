@@ -30,7 +30,7 @@
 
 <p align="center"><em></em></p>
 
-Agentic POI Bench is a comprehensive benchmark for POI (Point of Interest) search. Originating from authentic user requirements, it is built upon real-world Model Context Protocol (MCP) rather than synthetic servers. It enables objective and reproducible evaluations through task-oriented dialogues.
+**Agentic POI Bench** is a comprehensive benchmark for POI  search. Originating from **authentic user requirements**, it is built upon **real-world Model Context Protocol** rather than synthetic servers. It enables **objective and reproducible evaluations** through **task-oriented dialogues**.
 
 ## Quick Start
 
