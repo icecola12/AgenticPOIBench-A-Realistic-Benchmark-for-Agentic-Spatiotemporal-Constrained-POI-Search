@@ -6,7 +6,7 @@
 
 - **Comprehensive Benchmark**:199 evaluation samples spanning 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
 
-- **Multi-turn and Task Oriented User-Agent Interaction**:
+- **Multi-turn and Task Oriented User-Agent Interaction**:A dynamic, multi-turn dialogue evaluation framework requiring agents to actively track conversational states, proactively elicit missing spatiotemporal constraints through clarifying questions, handle ambiguous or evolving inputs, and incrementally refine search strategies until the user's specific POI objective is successfully fulfilled.
 
 - **Live MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
 
@@ -25,13 +25,16 @@
 ## Overview
 
 <p align="center">
-  <img src="pics/figure2.png" alt="Figure 2" width="100%" />
+  <img src="pics/figure2.png" alt="Figure 2" width="80%" />
 </p>
 
 <p align="center"><em></em></p>
 
-AgenticPOIBench is a comprehensive benchmark for POI Search in real scenarios.
+Agentic POI Bench is a comprehensive benchmark for POI (Point of Interest) search. Originating from authentic user requirements, it is built upon real-world Model Context Protocol (MCP) rather than synthetic servers. It enables objective and reproducible evaluations through task-oriented dialogues.
 
+## Quick Start
+
+*Quick Start instructions (environment setup, dependency installation, and how to run the benchmark) will be added in a future release. Please stay tuned.*
 
 ## Benchmark Construction
 
@@ -120,14 +123,4 @@ AgenticPOIBench/
 
 ---
 
-## Quick Start
 
-*Quick Start instructions (environment setup, dependency installation, and how to run the benchmark) will be added in a future release. Please stay tuned.*
-
-## Installation and Usage
-
-*Detailed installation steps and usage instructions will be supplemented in a future release. Please stay tuned.*
-
-## Evaluation Results
-
-*Benchmark evaluation results and analysis will be supplemented in a future release. Please stay tuned.*
