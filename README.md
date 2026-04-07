@@ -1,31 +1,42 @@
 # AgenticPOIBench: A Realistic Benchmark for Agentic Spatiotemporal-Constrained POI Search
 
-<p align="center">
-  <img src="pics/figure2.png" alt="Figure 2" width="80%" />
-</p>
+**Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges.**AgenticPOIBench** offers a challenging POI search benchmark by introducing five features that better capture real-world agent behavior：
 
-<p align="center"><em>Figure 2: Benchmark overview.</em></p>
+- **Realistic Task Design** :An LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App, ensuring broad coverage of authentic search intentions.
+
+- **Comprehensive Benchmark**:199 evaluation samples spanning 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
+
+- **Multi-turn and Task Oriented User-Agent Interaction**:
+
+- **Live MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
+
+- **Automated Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
+
+---这一块放最后我们总结好的优势表
+
+## Table of contents
+- overview
+- Benchmark Construction
+- Quick Start
+- Documentation
+- Project Structure
+- Citation
 
 ## Overview
 
-Modern POI search demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. While LLM-based agents offer a promising paradigm for tackling these challenges, existing benchmarks fall short — they fail to capture the diversity of authentic user demands, are severely decoupled from real-world scenarios, and lack systematic assessment of multi-turn reasoning during user interaction.
+<p align="center">
+  <img src="pics/figure2.png" alt="Figure 2" width="100%" />
+</p>
 
-AgenticPOIBench bridges this gap by providing:
+<p align="center"><em></em></p>
 
-## Key Features
+AgenticPOIBench is a comprehensive benchmark for POI Search in real scenarios.
 
--  **Realistic Task Design** — An LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App, ensuring broad coverage of authentic search intentions.
-
--  **Comprehensive Benchmark** — 199 evaluation samples spanning 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
-
--  **Live MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring high-fidelity, real-world evaluation.
-
--  **Automated Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
 
 ## Benchmark Construction
 
 <p align="center">
-  <img src="pics/figure1.jpg" alt="Figure 1" width="80%" />
+  <img src="pics/figure1.jpg" alt="Figure 1" width="100%" />
 </p>
 
 <p align="center"><em>Figure 1: Benchmark construction overview.</em></p>
