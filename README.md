@@ -6,15 +6,15 @@
 
 - **Multi-turn and Task Oriented User-Agent Interaction**: A dynamic, multi-turn dialogue evaluation framework requiring agents to actively track conversational states, proactively elicit missing constraints through clarifying questions, handle ambiguous or evolving inputs, and incrementally refine search strategies until the user's specific POI objective is successfully fulfilled.
 
-- **Live MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
+- **MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
 
-- **Automated Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
+- **Reproducible Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
 
 
 <p align="center">
   <img src="pics/figure3.png" alt="Figure 3" width="80%" />
 </p>
-<p align="center"><em>Figure 3. Benchmark advantage dimensions (to be paired with the summary table at the end of the document). A hyphen (--) denotes not applicable.</em></p>
+<p align="center"><em>Benchmark advantage dimensions (to be paired with the summary table at the end of the document). A hyphen (--) denotes not applicable.</em></p>
 
 ## Table of contents
 
@@ -131,12 +131,7 @@ AgenticPOIBench/
     └── tools/                # Amap MCP integration helpers
 ```
 
-> **Note:** All benchmark task data for the default setup lives in `data/eval.json`; change `paths.eval_json` in `src/config/config.yaml` if you point to another file. The `results/` directory is produced by pipeline runs and is usually absent from a clean clone (often listed in `.gitignore`). Folders such as `temp/` or `test/` are for local reference or ad-hoc work only and are not part of the published repository layout.
+> **Note:** All benchmark task data for the default setup lives in `data/eval.json`; change `paths.eval_json` in `src/config/config.yaml` if you point to another file. 
 
-## Citation
-
-Citation (e.g. BibTeX) will be added in a future release.
-
----
 
 
