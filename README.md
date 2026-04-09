@@ -1,6 +1,6 @@
 # AgenticPOIBench: A Realistic Benchmark for Agentic Spatiotemporal-Constrained POI Search
 
-**Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges. **AgenticPOIBench** offers a challenging POI search benchmark by introducing five features that better capture real-world agent behavior:
+**Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges. **AgenticPOIBench** offers a challenging POI search benchmark by introducing four features that better capture real-world agent behavior:
 
 - **Broad Coverage of Authentic Intents**: We propose an LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App. This pipeline yields a comprehensive benchmark comprising 199 evaluation samples, which systematically spans 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
 
