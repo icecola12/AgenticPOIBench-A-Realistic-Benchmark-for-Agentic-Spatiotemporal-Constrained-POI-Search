@@ -22,19 +22,60 @@ from pydantic import BaseModel, Field
 from mcp.server.fastmcp import FastMCP
 from fastmcp import Client
 from langchain_core.tools import tool
-from utils.config_loader import get_amap_default_key
-from utils.amap_qps_manager import http_get_with_retry
 
 
 # 用于动态替换的当前 API Key（由 QPS 管理器使用）
 _current_api_key: Optional[str] = None
 
+# 与 src/config/config.yaml env.amap_key_env 及 agent.md §5.1 对齐；保留旧名以便迁移
+_AMAP_KEY_ENV_NAMES = (
+    "AMAP_MCP_KEY",
+    "AMAP_API_KEY",
+    "AMAP_KEY",
+    "GAODE_API_KEY",
+)
+
+
+def get_amap_default_key() -> str:
+    """从环境变量读取高德 Web 服务 Key，禁止在代码中硬编码。"""
+    for name in _AMAP_KEY_ENV_NAMES:
+        v = os.environ.get(name)
+        if v and str(v).strip():
+            return str(v).strip()
+    raise RuntimeError(
+        "未设置高德 API Key。请设置环境变量 AMAP_MCP_KEY（或与 config.yaml 中 env.amap_key_env 一致）。"
+    )
+
+
+def http_get_with_retry(
+    url: str,
+    params: Optional[Dict[str, Any]] = None,
+    wait_before_request: Optional[Any] = None,
+    max_retries: int = 5,
+    timeout: int = 60,
+) -> Any:
+    """带可选限流与指数退避的 GET，返回 requests.Response。"""
+    last_exc: Optional[Exception] = None
+    for attempt in range(max_retries):
+        if wait_before_request is not None:
+            wait_before_request()
+        try:
+            return requests.get(url, params=params, timeout=timeout)
+        except requests.exceptions.RequestException as e:
+            last_exc = e
+            if attempt >= max_retries - 1:
+                raise
+            time.sleep(min(2**attempt, 30.0))
+    assert last_exc is not None
+    raise last_exc
+
+
 def get_amap_api_key() -> str:
     """
     Get the Amap Maps API key from configuration file or dynamic override.
-    
+
     If _current_api_key is set (by QPS manager), use it.
-    Otherwise, get from configuration file.
+    Otherwise, get from environment variables.
     """
     if _current_api_key is not None:
         return _current_api_key
@@ -78,12 +119,15 @@ _qps_limiter = QPSLimiter(qps=1.0)
 
 
 def _amap_http_get(url: str, params: Optional[Dict[str, Any]] = None):
-    """带 QPS 限流与无限重试的高德 GET 请求（重试逻辑定义在 utils.amap_qps_manager）。"""
-    return http_get_with_retry(
-        url,
-        params=params,
-        wait_before_request=_qps_limiter.wait_if_needed,
-    )
+    """Amap GET with MCP concurrency cap (config.yaml mcp.max_concurrent_mcp), QPS limiter, and retries."""
+    from concurrency import get_mcp_sync_semaphore
+
+    with get_mcp_sync_semaphore():
+        return http_get_with_retry(
+            url,
+            params=params,
+            wait_before_request=_qps_limiter.wait_if_needed,
+        )
 
 def _safe_get_string(data: dict, key: str, default: str = "") -> str:
     """
@@ -1403,7 +1447,6 @@ def maps_around_search(location: str, radius: str = "5000", keywords: str = "") 
 
         pois = []
         for page in range(1, 6):
-            _qps_limiter.wait_if_needed()
             params = {
                 "key": get_amap_api_key(),
                 "location": location,
@@ -1413,7 +1456,9 @@ def maps_around_search(location: str, radius: str = "5000", keywords: str = "") 
             }
             if keywords:
                 params["keywords"] = keywords
-            response = requests.get("https://restapi.amap.com/v3/place/around", params=params)
+            response = _amap_http_get(
+                "https://restapi.amap.com/v3/place/around", params=params
+            )
             response.raise_for_status()
             data = response.json()
             if data.get("status") != "1":
@@ -2001,181 +2046,6 @@ def amap_ip_location(ip: str = "") -> IpLocationResult:
         return IpLocationResult(error=f"处理过程中发生未知错误: {str(e)}")
 
 
-class HardwareLocationResult(BaseModel):
-    """智能硬件定位结果"""
-    location: Optional[str] = Field(
-        default=None,
-        description="定位经纬度，格式为'经度,纬度'"
-    )
-    radius: Optional[str] = Field(
-        default=None,
-        description="定位精度半径，单位：米"
-    )
-    desc: Optional[str] = Field(
-        default=None,
-        description="位置描述"
-    )
-    country: Optional[str] = Field(default=None, description="国家")
-    province: Optional[str] = Field(default=None, description="省份")
-    city: Optional[str] = Field(default=None, description="城市")
-    citycode: Optional[str] = Field(default=None, description="城市编码")
-    adcode: Optional[str] = Field(default=None, description="区域编码")
-    road: Optional[str] = Field(default=None, description="道路名")
-    poi: Optional[str] = Field(default=None, description="定位附近 POI 名称")
-    error: Optional[str] = Field(default=None, description="错误信息，仅在失败时存在")
-
-class HardwareLocationInput(BaseModel):
-    """智能硬件定位工具输入参数"""
-    accesstype: str = Field(
-        description="接入网络方式。0：移动基站接入；1：wifi 接入。必填。"
-    )
-    cdma: str = Field(
-        default="0",
-        description="是否为 CDMA。0：非 CDMA；1：是 CDMA。accesstype=0 时必填，默认 0。"
-    )
-    network: str = Field(
-        default="",
-        description="无线网络类型。如 GPRS、WCDMA。accesstype=0 时必填。"
-    )
-    bts: str = Field(
-        default="",
-        description="接入基站信息。非 CDMA 格式：mcc,mnc,lac,cellid,signal；CDMA 格式：sid,nid,bid,lon,lat,signal。accesstype=0 时必填。"
-    )
-    nearbts: str = Field(
-        default="",
-        description="周边基站信息（不含接入基站），多个用竖线'|'分隔。可选。"
-    )
-    macs: str = Field(
-        default="",
-        description="wifi 列表 mac 信息，单条格式 mac,signal,ssid，多条用竖线'|'分隔，需 2–30 个。accesstype=1 时必填。"
-    )
-    mmac: str = Field(
-        default="",
-        description="已连热点 mac 信息，格式 mac,signal,ssid。accesstype=1 时建议填写。可选。"
-    )
-    imei: str = Field(default="", description="手机 IMEI，建议填写。可选。")
-    idfa: str = Field(default="", description="iOS 设备 IDFA。与 imei 二选一。可选。")
-    imsi: str = Field(default="", description="移动用户识别码。可选。")
-    smac: str = Field(default="", description="手机 MAC。可选。")
-    serverip: str = Field(default="", description="设备接入基站时网关 IP。可选。")
-    tel: str = Field(default="", description="手机号码。可选。")
-
-@mcp.tool()
-def amap_hardware_location(
-    accesstype: str,
-    cdma: str = "0",
-    network: str = "",
-    bts: str = "",
-    nearbts: str = "",
-    macs: str = "",
-    mmac: str = "",
-    imei: str = "",
-    idfa: str = "",
-    imsi: str = "",
-    smac: str = "",
-    serverip: str = "",
-    tel: str = "",
-) -> HardwareLocationResult:
-    """高德智能硬件定位服务。
-
-    通过上传 WIFI 或基站信息进行定位，获取经纬度及位置描述。仅适用于无 Android/iOS 的智能硬件；有系统设备请用对应 SDK。
-
-    Args:
-        accesstype: 接入方式。0：移动基站（需 cdma、network、bts）；1：wifi（需 macs，2–30 个）。
-        cdma: 0 非 CDMA，1 CDMA。accesstype=0 时必填。
-        network: 如 GPRS、WCDMA。accesstype=0 时必填。
-        bts: 接入基站，格式见文档。accesstype=0 时必填。
-        nearbts: 周边基站，竖线分隔。可选。
-        macs: wifi mac 列表，竖线分隔，2–30 个。accesstype=1 时必填。
-        mmac: 已连热点 mac,signal,ssid。可选。
-        imei/idfa/imsi/smac/serverip/tel: 可选，有助于精度与排查。
-
-    Returns:
-        HardwareLocationResult: 成功时含 location、radius、desc、省市区等；失败时 error 为原因。
-    """
-    base_url = "https://apilocate.amap.com/position"
-    accesstype = (accesstype or "").strip()
-    if accesstype not in ("0", "1"):
-        return HardwareLocationResult(error="accesstype 必须为 0（基站）或 1（wifi）")
-
-    if accesstype == "0":
-        if not (cdma and network and bts):
-            return HardwareLocationResult(error="accesstype=0 时 cdma、network、bts 为必填")
-    else:
-        mac_list = [m.strip() for m in (macs or "").split("|") if m.strip()]
-        if len(mac_list) < 2 or len(mac_list) > 30:
-            return HardwareLocationResult(error="accesstype=1 时 macs 需 2–30 个，竖线分隔")
-
-    params = {
-        "key": get_amap_api_key(),
-        "accesstype": accesstype,
-        "output": "json",
-    }
-    if cdma and cdma.strip():
-        params["cdma"] = cdma.strip()
-    if network and network.strip():
-        params["network"] = network.strip()
-    if bts and bts.strip():
-        params["bts"] = bts.strip()
-    if nearbts and nearbts.strip():
-        params["nearbts"] = nearbts.strip()
-    if macs and macs.strip():
-        params["macs"] = macs.strip()
-    if mmac and mmac.strip():
-        params["mmac"] = mmac.strip()
-    if imei and imei.strip():
-        params["imei"] = imei.strip()
-    if idfa and idfa.strip():
-        params["idfa"] = idfa.strip()
-    if imsi and imsi.strip():
-        params["imsi"] = imsi.strip()
-    if smac and smac.strip():
-        params["smac"] = smac.strip()
-    if serverip and serverip.strip():
-        params["serverip"] = serverip.strip()
-    if tel and tel.strip():
-        params["tel"] = tel.strip()
-
-    try:
-        response = _amap_http_get(base_url, params=params)
-        data = response.json()
-
-        if data.get("status") != "1":
-            error_info = data.get("info", "未知错误")
-            return HardwareLocationResult(error=f"高德智能硬件定位失败: {error_info}")
-
-        raw_result = data.get("result")
-        if not isinstance(raw_result, list) or len(raw_result) == 0:
-            return HardwareLocationResult(error="接口未返回定位结果")
-
-        item = raw_result[0]
-        if not isinstance(item, dict):
-            return HardwareLocationResult(error="定位结果格式异常")
-
-        def _s(v: str) -> Optional[str]:
-            if v is None or (isinstance(v, str) and not v.strip()):
-                return None
-            return v.strip() if isinstance(v, str) else str(v).strip()
-
-        return HardwareLocationResult(
-            location=_s(item.get("location")),
-            radius=_s(item.get("radius")),
-            desc=_s(item.get("desc")),
-            country=_s(item.get("country")),
-            province=_s(item.get("province")),
-            city=_s(item.get("city")),
-            citycode=_s(item.get("citycode")),
-            adcode=_s(item.get("adcode")),
-            road=_s(item.get("road")),
-            poi=_s(item.get("poi")),
-        )
-
-    except requests.exceptions.RequestException as e:
-        return HardwareLocationResult(error=f"网络请求异常: {str(e)}")
-    except Exception as e:
-        return HardwareLocationResult(error=f"处理过程中发生未知错误: {str(e)}")
-
-
 class BusLineItem(BaseModel):
     """途经该站的公交线路一条"""
     id: str = Field(default="", description="公交线路唯一 id")
@@ -2524,76 +2394,10 @@ def amap_bus_line_keyword(
         return BusLineKeywordResult(error=f"处理过程中发生未知错误: {str(e)}")
 
 
-@mcp.tool()
-def maps_static_map(
-    location: str,
-    zoom: str = "10",
-    size: str = "400*400",
-    markers: Optional[str] = None,
-    labels: Optional[str] = None,
-    paths: Optional[str] = None
-) -> StaticMapResult:
-    """高德地图静态地图服务。
-
-    返回地图图片，支持指定位置、大小，添加标签、标注、折线、多边形等覆盖物。
-    将地图以图片形式嵌入网页。
-
-    Args:
-        location: 地图中心点坐标。规则：经度在前，纬度在后，用英文逗号','分隔。
-                  例如："116.481488,39.990464"
-        zoom: 地图缩放级别。可选值：1-18。可选，默认10。
-        size: 图片尺寸。格式：宽*高，例如："400*400"。可选，默认"400*400"。
-        markers: 标注点标记。格式：标注样式|标注位置|标注内容，多个标注用'|'分隔。可选。
-        labels: 文本标签。格式：标签样式|标签位置|标签内容，多个标签用'|'分隔。可选。
-        paths: 折线。格式：折线样式|折线坐标点，多个折线用'|'分隔。可选。
-
-    Returns:
-        StaticMapResult: 包含地图图片信息的对象。成功时包含 image_url 字段（地图图片URL）。
-                        失败时包含 error (str) 字段。
-    """
-    base_url = "https://restapi.amap.com/v3/staticmap"
-    params = {
-        "key": get_amap_api_key(),
-        "location": location,
-        "zoom": zoom,
-        "size": size
-    }
-
-    if markers:
-        params["markers"] = markers
-    if labels:
-        params["labels"] = labels
-    if paths:
-        params["paths"] = paths
-
-    try:
-        response = _amap_http_get(base_url, params=params)
-
-        content_type = response.headers.get("Content-Type", "")
-        if "image" in content_type:
-            image_url = f"{base_url}?{urlencode(params)}"
-            return StaticMapResult(image_url=image_url)
-        else:
-            try:
-                data = response.json()
-                if data.get("status") != "1":
-                    error_info = data.get("info", "未知错误")
-                    return StaticMapResult(error=f"高德API静态地图失败: {error_info}")
-            except Exception:
-                pass
-
-            image_url = f"{base_url}?{urlencode(params)}"
-            return StaticMapResult(image_url=image_url)
-
-    except requests.exceptions.RequestException as e:
-        return StaticMapResult(error=f"网络请求失败: {str(e)}")
-    except Exception as e:
-        return StaticMapResult(error=f"处理过程中发生未知错误: {str(e)}")
-
 
 def get_amap_tools():
     """
-    获取高德地图工具列表（含基础工具与扩展工具）。
+    获取高德地图工具列表
 
     Returns:
         List[Tool]: LangChain 工具列表
@@ -2640,11 +2444,9 @@ def get_amap_extra_tools():
         tool(amap_coordinate_convert, args_schema=CoordinateConvertInput),
         tool(amap_weather_query, args_schema=WeatherQueryInput),
         tool(amap_ip_location, args_schema=IpLocationInput),
-        tool(amap_hardware_location, args_schema=HardwareLocationInput),
         tool(amap_bus_stop_id, args_schema=BusStopInput),
         tool(amap_bus_line_id, args_schema=BusLineInput),
         tool(amap_bus_line_keyword, args_schema=BusLineKeywordInput),
-        tool(maps_static_map, args_schema=StaticMapInput)
     ]
 
 # --- 主程序入口：根据 @mcp.tool() 装饰的工具生成 amap_tools_descriptions.json ---
@@ -2727,6 +2529,6 @@ async def _generate_tool_descriptions_json():
         return None
 
 if __name__ == "__main__":
-    # # 生成工具描述 JSON 文件
-    # asyncio.run(_generate_tool_descriptions_json())
-    print(maps_around_search(location="116.481488,39.990464", radius=1000, keywords="网吧"))
+    # 生成工具描述 JSON 文件
+    asyncio.run(_generate_tool_descriptions_json())
+    # print(maps_around_search(location="116.481488,39.990464", radius=1000, keywords="网吧"))

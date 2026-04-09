@@ -1,0 +1,2448 @@
+{
+  "tools": [
+    {
+      "name": "regeocode_amap_location",
+      "description": "高德地图逆地理编码服务。\n\n根据提供的经纬度坐标，查询其对应的结构化地址信息，如省、市、区和详细地址。\n\nArgs:\n    location: 经纬度坐标。规则：经度在前，纬度在后，用英文逗号\",\"分割。\n        例如：\"116.481488,39.990464\"\n\nReturns:\n    RegeocodeResult: 包含地址信息的对象。成功时包含以下字段：\n        - formatted_address (str): 完整格式化地址\n        - province (str): 省份名称\n        - city (str): 城市名称\n        - district (str): 区县名称\n        - township (str): 乡镇街道名称\n        失败时包含 error (str) 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "location": {
+            "title": "Location",
+            "type": "string"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "title": "regeocode_amap_locationArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "逆地理编码结果",
+        "properties": {
+          "formatted_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "完整格式化地址",
+            "title": "Formatted Address"
+          },
+          "province": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "省份名称",
+            "title": "Province"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "城市名称",
+            "title": "City"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "区县名称",
+            "title": "District"
+          },
+          "township": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "乡镇街道名称",
+            "title": "Township"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "RegeocodeResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_bicycling_by_coordinates",
+      "description": "\n根据经纬度坐标规划骑行路线。\n返回总距离，总时长等信息。\n\n\nArgs:\n    origin (str): 起点坐标，格式为 \"经度,纬度\"。\n                  规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                  经纬度小数点不超过6位。\n                  例如：\"116.481028,39.989643\"\n    destination (str): 终点坐标，格式为 \"经度,纬度\"。\n                      规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                      经纬度小数点不超过6位。\n                      例如：\"116.465302,40.004717\"\n\nReturns:\n    BicyclingRouteResult: 包含路线信息的对象。\n                          成功时包含以下字段：\n                          - total_distance_meters (int): 路线总距离（米）\n                          - total_duration_seconds (int): 路线总预计时间（秒）\n                          - origin_coordinates (str): 起点坐标，格式为'经度,纬度'\n                          - destination_coordinates (str): 终点坐标，格式为'经度,纬度'\n                          - origin_address (str|None): 起点地址，可能为None\n                          - destination_address (str|None): 终点地址，可能为None\n                          - steps (List[BicyclingStep]): 分步导航信息列表，每个步骤包含：\n                            * instruction (str): 导航指示，描述当前步骤的行驶方向\n                            * road (str): 道路名称，如果为空则显示'无名道路'\n                            * distance_meters (int): 当前步骤的行驶距离（米）\n                            * duration_seconds (int): 当前步骤的预计行驶时间（秒）\n                            * action (str|None): 导航动作类型（如\"直行\"、\"左转\"、\"右转\"、\"到达\"），可能为None\n                            * assistant_action (str|None): 辅助导航动作，可能为None\n                            * from_coordinates (str): 步骤起点坐标，格式为'经度,纬度'\n                            * to_coordinates (str): 步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）\n                          失败时包含 error (str) 字段，描述错误信息。\n",
+      "inputSchema": {
+        "properties": {
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          }
+        },
+        "required": [
+          "origin",
+          "destination"
+        ],
+        "title": "maps_bicycling_by_coordinatesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "BicyclingStep": {
+            "description": "骑行路线中的单步导航信息",
+            "properties": {
+              "instruction": {
+                "description": "导航指示，描述当前步骤的行驶方向",
+                "title": "Instruction",
+                "type": "string"
+              },
+              "road": {
+                "description": "道路名称，如果为空则显示'无名道路'",
+                "title": "Road",
+                "type": "string"
+              },
+              "distance_meters": {
+                "description": "当前步骤的行驶距离（米）",
+                "title": "Distance Meters",
+                "type": "integer"
+              },
+              "duration_seconds": {
+                "description": "当前步骤的预计行驶时间（秒）",
+                "title": "Duration Seconds",
+                "type": "integer"
+              },
+              "action": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "导航动作类型",
+                "title": "Action"
+              },
+              "assistant_action": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "辅助导航动作",
+                "title": "Assistant Action"
+              },
+              "from_coordinates": {
+                "description": "步骤起点坐标，格式为'经度,纬度'",
+                "title": "From Coordinates",
+                "type": "string"
+              },
+              "to_coordinates": {
+                "description": "步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）",
+                "title": "To Coordinates",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instruction",
+              "road",
+              "distance_meters",
+              "duration_seconds",
+              "from_coordinates",
+              "to_coordinates"
+            ],
+            "title": "BicyclingStep",
+            "type": "object"
+          }
+        },
+        "description": "骑行路线规划结果",
+        "properties": {
+          "total_distance_meters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总距离（米），成功时包含",
+            "title": "Total Distance Meters"
+          },
+          "total_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总预计时间（秒），成功时包含",
+            "title": "Total Duration Seconds"
+          },
+          "origin_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Origin Coordinates"
+          },
+          "destination_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Destination Coordinates"
+          },
+          "origin_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点地址，成功时包含",
+            "title": "Origin Address"
+          },
+          "destination_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点地址，成功时包含",
+            "title": "Destination Address"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/BicyclingStep"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "分步导航信息列表，成功时包含",
+            "title": "Steps"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "BicyclingRouteResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_driving_by_coordinates",
+      "description": "\n根据经纬度坐标规划驾车路线。\n返回总距离，总时长等信息。\n\n\nArgs:\n    origin (str): 起点坐标，格式为 \"经度,纬度\"。\n                  规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                  经纬度小数点不超过6位。\n                  例如：\"116.481028,39.989643\"\n    destination (str): 终点坐标，格式为 \"经度,纬度\"。\n                      规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                      经纬度小数点不超过6位。\n                      例如：\"116.465302,40.004717\"\n\nReturns:\n    DrivingRouteResult: 包含路线信息的对象。\n                        成功时包含以下字段：\n                        - total_distance_meters (int): 路线总距离（米）\n                        - total_duration_seconds (int): 路线总预计时间（秒）\n                        - origin_coordinates (str): 起点坐标，格式为'经度,纬度'\n                        - destination_coordinates (str): 终点坐标，格式为'经度,纬度'\n                        - origin_address (str|None): 起点地址，可能为None\n                        - destination_address (str|None): 终点地址，可能为None\n                        - steps (List[DrivingStep]): 分步导航信息列表，每个步骤包含：\n                          * instruction (str): 导航指示，描述当前步骤的行驶方向\n                          * road (str|None): 道路名称，可能为None\n                          * distance_meters (int): 当前步骤的行驶距离（米）\n                          * duration_seconds (int): 当前步骤的预计行驶时间（秒）\n                          * orientation (str|None): 方向，如'东'、'南'、'西'、'北'、'东北'、'东南'、'西南'、'西北'等，可能为None\n                          * from_coordinates (str): 步骤起点坐标，格式为'经度,纬度'\n                          * to_coordinates (str): 步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）\n                        失败时包含 error (str) 字段，描述错误信息。\n",
+      "inputSchema": {
+        "properties": {
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          }
+        },
+        "required": [
+          "origin",
+          "destination"
+        ],
+        "title": "maps_driving_by_coordinatesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "DrivingStep": {
+            "description": "驾车路线中的单步导航信息",
+            "properties": {
+              "instruction": {
+                "description": "导航指示，描述当前步骤的行驶方向",
+                "title": "Instruction",
+                "type": "string"
+              },
+              "road": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "道路名称",
+                "title": "Road"
+              },
+              "distance_meters": {
+                "description": "当前步骤的行驶距离（米）",
+                "title": "Distance Meters",
+                "type": "integer"
+              },
+              "duration_seconds": {
+                "description": "当前步骤的预计行驶时间（秒）",
+                "title": "Duration Seconds",
+                "type": "integer"
+              },
+              "orientation": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "方向，如'东'、'南'、'西'、'北'等",
+                "title": "Orientation"
+              },
+              "from_coordinates": {
+                "description": "步骤起点坐标，格式为'经度,纬度'",
+                "title": "From Coordinates",
+                "type": "string"
+              },
+              "to_coordinates": {
+                "description": "步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）",
+                "title": "To Coordinates",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instruction",
+              "distance_meters",
+              "duration_seconds",
+              "from_coordinates",
+              "to_coordinates"
+            ],
+            "title": "DrivingStep",
+            "type": "object"
+          }
+        },
+        "description": "驾车路线规划结果",
+        "properties": {
+          "total_distance_meters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总距离（米），成功时包含",
+            "title": "Total Distance Meters"
+          },
+          "total_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总预计时间（秒），成功时包含",
+            "title": "Total Duration Seconds"
+          },
+          "origin_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Origin Coordinates"
+          },
+          "destination_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Destination Coordinates"
+          },
+          "origin_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点地址，成功时包含",
+            "title": "Origin Address"
+          },
+          "destination_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点地址，成功时包含",
+            "title": "Destination Address"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/DrivingStep"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "分步导航信息列表，成功时包含",
+            "title": "Steps"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "DrivingRouteResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_walking_by_coordinates",
+      "description": "\n根据经纬度坐标规划步行路线。\n返回总距离，总时长等信息\n\n\nArgs:\n    origin (str): 起点坐标，格式为 \"经度,纬度\"。\n                  规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                  经纬度小数点不超过6位。\n                  例如：\"116.481028,39.989643\"\n    destination (str): 终点坐标，格式为 \"经度,纬度\"。\n                      规则：经度在前，纬度在后，用英文逗号\",\"分隔。\n                      经纬度小数点不超过6位。\n                      例如：\"116.465302,40.004717\"\n\nReturns:\n    WalkingRouteResult: 包含路线信息的对象。\n                        成功时包含以下字段：\n                        - total_distance_meters (int): 路线总距离（米）\n                        - total_duration_seconds (int): 路线总预计时间（秒）\n                        - origin_coordinates (str): 起点坐标，格式为'经度,纬度'\n                        - destination_coordinates (str): 终点坐标，格式为'经度,纬度'\n                        - origin_address (str|None): 起点地址，可能为None\n                        - destination_address (str|None): 终点地址，可能为None\n                        - steps (List[WalkingStep]): 分步导航信息列表，每个步骤包含：\n                          * instruction (str): 导航指示，描述当前步骤的行驶方向\n                          * road (str): 道路名称，如果为空则显示'无名道路'\n                          * distance_meters (int): 当前步骤的行驶距离（米）\n                          * duration_seconds (int): 当前步骤的预计行驶时间（秒）\n                          * action (str|None): 导航动作类型（如\"直行\"、\"左转\"、\"右转\"、\"到达\"），可能为None\n                          * assistant_action (str|None): 辅助导航动作，可能为None\n                          * from_coordinates (str): 步骤起点坐标，格式为'经度,纬度'\n                          * to_coordinates (str): 步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）\n                        失败时包含 error (str) 字段，描述错误信息。\n",
+      "inputSchema": {
+        "properties": {
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          }
+        },
+        "required": [
+          "origin",
+          "destination"
+        ],
+        "title": "maps_walking_by_coordinatesArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "WalkingStep": {
+            "description": "步行路线中的单步导航信息",
+            "properties": {
+              "instruction": {
+                "description": "导航指示，描述当前步骤的行驶方向",
+                "title": "Instruction",
+                "type": "string"
+              },
+              "road": {
+                "description": "道路名称，如果为空则显示'无名道路'",
+                "title": "Road",
+                "type": "string"
+              },
+              "distance_meters": {
+                "description": "当前步骤的行驶距离（米）",
+                "title": "Distance Meters",
+                "type": "integer"
+              },
+              "duration_seconds": {
+                "description": "当前步骤的预计行驶时间（秒）",
+                "title": "Duration Seconds",
+                "type": "integer"
+              },
+              "action": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "导航动作类型",
+                "title": "Action"
+              },
+              "assistant_action": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "辅助导航动作",
+                "title": "Assistant Action"
+              },
+              "from_coordinates": {
+                "description": "步骤起点坐标，格式为'经度,纬度'",
+                "title": "From Coordinates",
+                "type": "string"
+              },
+              "to_coordinates": {
+                "description": "步骤终点坐标，格式为'经度,纬度'（可能是途经点或最终目的地）",
+                "title": "To Coordinates",
+                "type": "string"
+              }
+            },
+            "required": [
+              "instruction",
+              "road",
+              "distance_meters",
+              "duration_seconds",
+              "from_coordinates",
+              "to_coordinates"
+            ],
+            "title": "WalkingStep",
+            "type": "object"
+          }
+        },
+        "description": "步行路线规划结果",
+        "properties": {
+          "total_distance_meters": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总距离（米），成功时包含",
+            "title": "Total Distance Meters"
+          },
+          "total_duration_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "路线总预计时间（秒），成功时包含",
+            "title": "Total Duration Seconds"
+          },
+          "origin_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Origin Coordinates"
+          },
+          "destination_coordinates": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点坐标，格式为'经度,纬度'，成功时包含",
+            "title": "Destination Coordinates"
+          },
+          "origin_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "起点地址，成功时包含",
+            "title": "Origin Address"
+          },
+          "destination_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "终点地址，成功时包含",
+            "title": "Destination Address"
+          },
+          "steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/WalkingStep"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "分步导航信息列表，成功时包含",
+            "title": "Steps"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "WalkingRouteResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_distance",
+      "description": "\n测量两个或多个经纬度坐标之间的距离。\n\nArgs:\n    origins (str): 出发点坐标，支持最多100个坐标对。\n                   格式：坐标对用\"|\"分隔，经度和纬度用\",\"分隔。\n                   例如：\"116.481028,39.989643|114.481028,39.989643\"\n    destination (str): 目的地坐标，单个坐标点。\n                      格式：\"经度,纬度\"，例如：\"114.465302,40.004717\"\n                      经纬度小数点不超过6位\n\nReturns:\n    DistanceResult: 包含距离测量结果的对象。\n                    成功时包含 results 字段（距离信息列表）。 \n                         - origin_id 起点坐标，起点坐标序列号（从1开始）\n                         - dest_id 终点坐标，终点坐标序列号（从1开始）\n                         - distance 距离（米）\n                    失败时包含 error 和 error_code 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "origins": {
+            "title": "Origins",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          }
+        },
+        "required": [
+          "origins",
+          "destination"
+        ],
+        "title": "maps_distanceArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "DistanceResultItem": {
+            "description": "单个距离测量结果",
+            "properties": {
+              "origin_id": {
+                "description": "起点坐标序列号（从1开始）",
+                "title": "Origin Id",
+                "type": "integer"
+              },
+              "dest_id": {
+                "description": "终点坐标序列号（从1开始）",
+                "title": "Dest Id",
+                "type": "integer"
+              },
+              "distance_meters": {
+                "description": "路径距离（米）",
+                "title": "Distance Meters",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "origin_id",
+              "dest_id",
+              "distance_meters"
+            ],
+            "title": "DistanceResultItem",
+            "type": "object"
+          }
+        },
+        "description": "距离测量结果",
+        "properties": {
+          "results": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/DistanceResultItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "距离信息列表，成功时包含",
+            "title": "Results"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误代码，仅在失败时存在",
+            "title": "Error Code"
+          }
+        },
+        "title": "DistanceResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_text_search",
+      "description": "高德地图关键词搜索服务。\n\n根据用户输入的关键字进行 POI 搜索，并返回相关的信息。\n\n规则说明：\n- 只支持一个关键字\n- 若不指定 city，并且搜索的为泛词（例如\"美食\"）的情况下，返回的内容为城市列表以及此城市内有多少结果符合要求\n- keyword 参数必填\n\nArgs:\n    keywords: 查询关键字。规则：只支持一个关键字。必填。\n    city: 查询城市。可选值：城市中文、citycode、adcode。\n         例如：北京/010/110000。\n         填入此参数后，会尽量优先返回此城市数据，但是不一定仅局限此城市结果，\n         若仅需要某个城市数据请调用 citylimit 参数。\n         city参数能够接收 citycode和 adcode，citycode仅能精确到城市，而adcode却能够精确到区县。\n         例如：北京，citycode：010，adcode：110000。\n         北京-海淀区，citycode：010，adcode：110108。\n         所以使用citycode仅能在北京范围内搜索，而adcode能够制定在海淀区搜索。\n         如：在深圳市搜天安门，返回北京天安门结果。\n         可选，若为空则在全国范围内搜索。\n    citylimit: 仅返回指定城市数据。可选值：true/false。可选，默认 false。\n\nReturns:\n    TextSearchResult: 包含搜索结果的对象。\n                     成功时包含 suggestion（搜索建议，包含关键词建议和城市建议）和 pois（POI结果列表）字段。\n                     Suggestion，城市建议列表，当搜索的文本关键字在限定城市中没有返回时会返回建议城市列表；\n                     - keywords 关键字\n                     - cities 城市列表\n                       - name 名称\n                       - num 该城市包含此关键字的个数\n                       - citycode 该城市的citycode\n                       - adcode 该城市的adcode\n                     搜索成功时，pois列表中包括以下字段：\n                     - id (str): POI唯一标识\n                     - name (str): POI名称\n                     - address (str): 地址\n                     失败时包含 error 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "keywords": {
+            "title": "Keywords",
+            "type": "string"
+          },
+          "city": {
+            "default": "",
+            "title": "City",
+            "type": "string"
+          },
+          "citylimit": {
+            "default": "false",
+            "title": "Citylimit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "title": "maps_text_searchArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "TextSearchPOI": {
+            "description": "文本搜索POI结果",
+            "properties": {
+              "id": {
+                "description": "POI ID",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "description": "POI名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "address": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "POI地址",
+                "title": "Address"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "title": "TextSearchPOI",
+            "type": "object"
+          }
+        },
+        "description": "文本搜索结果",
+        "properties": {
+          "suggestion": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "搜索建议信息，包含关键词建议和城市建议",
+            "title": "Suggestion"
+          },
+          "pois": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/TextSearchPOI"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI结果列表",
+            "title": "Pois"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "TextSearchResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_around_search",
+      "description": "高德地图周边搜索服务。\n当用户需要\"找附近/周边X米/公里内的餐厅/加油站/厕所等\"时，**必须直接调用此函数**，无需其他距离验证。\n\n禁止先大范围搜索再用 maps_distance 逐个验证的低效做法\n\n根据用户传入的关键词以及坐标位置，搜索指定半径范围内的 POI。\n\nArgs:\n    location: 中心点坐标。规则：经度和纬度用\",\"分割，经度在前，纬度在后，经纬度小数点后不得超过6位。必填。\n              例如：\"116.481488,39.990464\"\n    radius: 查询半径。取值范围:0-50000。规则：大于50000按默认值，单位：米。可选，默认 5000。\n    keywords: 查询关键字。规则：只支持一个关键字。可选，不指定关键词时返回周边所有POI。\n\nReturns:\n    AroundSearchResult: 包含搜索结果的对象。\n                     成功时包含 suggestion（搜索建议，包含关键词建议和城市建议）和 pois（POI结果列表）字段。\n                     Suggestion，城市建议列表，当搜索的文本关键字在限定城市中没有返回时会返回建议城市列表；\n                     - keywords 关键字\n                     - cities 城市列表\n                       - name 名称\n                       - num 该城市包含此关键字的个数\n                       - citycode 该城市的citycode\n                       - adcode 该城市的adcode\n                     搜索成功时，pois列表中包括以下字段：\n                     - id (str): POI唯一标识\n                     - name (str): POI名称\n                     - address (str): 地址\n                     - location (str): POI坐标，格式为\"经度,纬度\"\n                     失败时包含 error 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "location": {
+            "title": "Location",
+            "type": "string"
+          },
+          "radius": {
+            "default": "5000",
+            "title": "Radius",
+            "type": "string"
+          },
+          "keywords": {
+            "default": "",
+            "title": "Keywords",
+            "type": "string"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "title": "maps_around_searchArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "AroundSearchPOI": {
+            "description": "周边搜索POI结果",
+            "properties": {
+              "id": {
+                "description": "POI ID",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "description": "POI名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "address": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "POI地址",
+                "title": "Address"
+              },
+              "location": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "POI坐标，格式为'经度,纬度'",
+                "title": "Location"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "title": "AroundSearchPOI",
+            "type": "object"
+          }
+        },
+        "description": "周边搜索结果",
+        "properties": {
+          "pois": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/AroundSearchPOI"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI结果列表",
+            "title": "Pois"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "AroundSearchResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_search_detail",
+      "description": "高德地图POI详情查询服务。\n\n查询通过关键词搜索或周边搜索获取到的POI ID的详细信息。\n\nArgs:\n    id: AOI唯一标识。最多可以传入1个id，传入目标区域的poiid即可。必填。\n\nReturns:\n    POIDetailResult: 包含POI详细信息的对象。\n                     成功时包含id、name、location、address、business_area、city、alias、biz_ext等字段。\n                     biz_ext字段包含扩展信息，如营业时间、评分、价格等。\n                     失败时包含 error 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "maps_search_detailArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "POI详细信息结果",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI ID",
+            "title": "Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI名称",
+            "title": "Name"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI坐标，格式为'经度,纬度'",
+            "title": "Location"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI地址",
+            "title": "Address"
+          },
+          "business_area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "商圈信息",
+            "title": "Business Area"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "城市名称",
+            "title": "City"
+          },
+          "alias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI别名",
+            "title": "Alias"
+          },
+          "biz_ext": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "扩展信息，包含营业时间、评分、价格等",
+            "title": "Biz Ext"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          },
+          "tel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI电话",
+            "title": "Tel"
+          },
+          "entr_location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI入口坐标，格式为'经度,纬度'",
+            "title": "Entr Location"
+          },
+          "parking_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "仅在停车场类型POI的时候显示该字段，展示停车场类型，包括地下，地面，路边",
+            "title": "Parking Type"
+          }
+        },
+        "title": "POIDetailResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "maps_polygon_search",
+      "description": "高德地图多边形区域内 POI 搜索服务。\n\n根据用户传入的多边形顶点坐标（或矩形左上、右下两顶点），在区域内搜索 POI。\n适用于「某块区域内的餐厅/学校/加油站」等按范围筛选的场景。\n\nArgs:\n    polygon: 多边形顶点坐标。规则：经度和纬度用\",\"分割，经度在前纬度在后，坐标对用\"|\"分割；矩形时可只传左上、右下两顶点；非矩形时首尾坐标对需相同。必填。\n             例如：\"116.460988,40.006919|116.48231,40.007381|116.47516,39.99713|116.460988,40.006919\"\n    keywords: 查询关键字。规则：只支持一个关键字。可选，不指定关键词时返回区域内默认类型 POI。\n\nReturns:\n    PolygonSearchResult: 包含搜索结果的对象。\n                        成功时包含 pois（POI 列表，含 id、name、address、location）和 count（总数）；\n                        失败时包含 error 字段。\n",
+      "inputSchema": {
+        "properties": {
+          "polygon": {
+            "title": "Polygon",
+            "type": "string"
+          },
+          "keywords": {
+            "default": "",
+            "title": "Keywords",
+            "type": "string"
+          }
+        },
+        "required": [
+          "polygon"
+        ],
+        "title": "maps_polygon_searchArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "PolygonSearchPOI": {
+            "description": "多边形搜索POI结果",
+            "properties": {
+              "id": {
+                "description": "POI ID",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "description": "POI名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "address": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "POI地址",
+                "title": "Address"
+              },
+              "location": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "POI坐标，格式为'经度,纬度'",
+                "title": "Location"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "title": "PolygonSearchPOI",
+            "type": "object"
+          }
+        },
+        "description": "多边形搜索结果",
+        "properties": {
+          "pois": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/PolygonSearchPOI"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "POI结果列表",
+            "title": "Pois"
+          },
+          "count": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "本次查询结果总数（API 返回）",
+            "title": "Count"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "PolygonSearchResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_input_tips",
+      "description": "高德地图输入提示服务。\n\n根据用户输入的关键词返回建议列表，适用于输入联想场景（如输入「仙林」后出现相关提示）。\n\nArgs:\n    keywords: 查询关键词。必填。\n    type: POI 分类。可选：分类名称或分类代码，多个用「|」分隔，建议使用分类代码。\n    location: 坐标，格式「经度,纬度」。可选，传入后在附近优先返回；在 city 不为空时生效。\n    city: 搜索城市。可选：citycode 或 adcode，如 010/110000。填入后优先返回该城市数据。\n    citylimit: 仅返回指定城市数据。可选：true/false。默认 false。\n    datatype: 返回数据类型。可选：all、poi、bus、busline，多种用「|」分隔。默认 all。\n\nReturns:\n    InputTipsResult: 成功时包含 count（结果总数）和 tips（提示列表，每项含 id、name、district、adcode、location、address）；\n                    失败时包含 error。\n",
+      "inputSchema": {
+        "properties": {
+          "keywords": {
+            "title": "Keywords",
+            "type": "string"
+          },
+          "type": {
+            "default": "",
+            "title": "Type",
+            "type": "string"
+          },
+          "location": {
+            "default": "",
+            "title": "Location",
+            "type": "string"
+          },
+          "city": {
+            "default": "",
+            "title": "City",
+            "type": "string"
+          },
+          "citylimit": {
+            "default": "false",
+            "title": "Citylimit",
+            "type": "string"
+          },
+          "datatype": {
+            "default": "all",
+            "title": "Datatype",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keywords"
+        ],
+        "title": "amap_input_tipsArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "InputTipItem": {
+            "description": "输入提示单条结果",
+            "properties": {
+              "id": {
+                "description": "数据 ID，POI 为 POI ID，bus 为 bus id，busline 为 busline id",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "description": "提示名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "district": {
+                "default": "",
+                "description": "所属区域，省+市+区",
+                "title": "District",
+                "type": "string"
+              },
+              "adcode": {
+                "default": "",
+                "description": "区域编码，六位区县编码",
+                "title": "Adcode",
+                "type": "string"
+              },
+              "location": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "中心点坐标，busline 类型不返回",
+                "title": "Location"
+              },
+              "address": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "详细地址",
+                "title": "Address"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ],
+            "title": "InputTipItem",
+            "type": "object"
+          }
+        },
+        "description": "输入提示接口返回结果",
+        "properties": {
+          "count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "返回结果总数目",
+            "title": "Count"
+          },
+          "tips": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/InputTipItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "建议提示列表",
+            "title": "Tips"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "InputTipsResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_coordinate_convert",
+      "description": "高德地图坐标转换服务。\n\n将非高德坐标（GPS、mapbar、百度）转换为高德坐标，便于后续使用高德逆地理、路径规划等服务。\n\nArgs:\n    locations: 坐标点。经度、纬度用英文逗号分隔，经度在前纬度在后，小数点后不超过6位；多组坐标用竖线'|'分隔，最多40对。例如：\"116.481028,39.989643\" 或 \"116.481028,39.989643|114.481028,39.989643\"。\n    coordsys: 原坐标系。可选：gps、mapbar、baidu、autonavi（不转换）。默认 gps。\n\nReturns:\n    CoordinateConvertResult: 成功时 locations 为转换后的高德坐标（多组用分号';'分隔）；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "locations": {
+            "title": "Locations",
+            "type": "string"
+          },
+          "coordsys": {
+            "default": "gps",
+            "title": "Coordsys",
+            "type": "string"
+          }
+        },
+        "required": [
+          "locations"
+        ],
+        "title": "amap_coordinate_convertArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "坐标转换结果",
+        "properties": {
+          "locations": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "转换后的高德坐标。多个坐标用分号';'分隔，单个坐标为'经度,纬度'。",
+            "title": "Locations"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "CoordinateConvertResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_weather_query",
+      "description": "高德地图天气查询服务。\n\n根据城市 adcode 查询该区域当前实况天气或未来几日预报天气。\n\nArgs:\n    city: 城市编码（adcode），必填。如 110000（北京）。\n    extensions: 气象类型。base：实况天气；all：预报天气（含当天及未来几日）。默认 base。\n\nReturns:\n    WeatherResult: 成功时 lives 为实况列表（base）或 forecasts 为预报列表（all）；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "extensions": {
+            "default": "base",
+            "title": "Extensions",
+            "type": "string"
+          }
+        },
+        "required": [
+          "city"
+        ],
+        "title": "amap_weather_queryArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "ForecastCastItem": {
+            "description": "预报单日（casts 中一项）",
+            "properties": {
+              "date": {
+                "default": "",
+                "description": "日期",
+                "title": "Date",
+                "type": "string"
+              },
+              "week": {
+                "default": "",
+                "description": "星期几",
+                "title": "Week",
+                "type": "string"
+              },
+              "dayweather": {
+                "default": "",
+                "description": "白天天气现象",
+                "title": "Dayweather",
+                "type": "string"
+              },
+              "nightweather": {
+                "default": "",
+                "description": "晚上天气现象",
+                "title": "Nightweather",
+                "type": "string"
+              },
+              "daytemp": {
+                "default": "",
+                "description": "白天温度",
+                "title": "Daytemp",
+                "type": "string"
+              },
+              "nighttemp": {
+                "default": "",
+                "description": "晚上温度",
+                "title": "Nighttemp",
+                "type": "string"
+              },
+              "daywind": {
+                "default": "",
+                "description": "白天风向",
+                "title": "Daywind",
+                "type": "string"
+              },
+              "nightwind": {
+                "default": "",
+                "description": "晚上风向",
+                "title": "Nightwind",
+                "type": "string"
+              },
+              "daypower": {
+                "default": "",
+                "description": "白天风力",
+                "title": "Daypower",
+                "type": "string"
+              },
+              "nightpower": {
+                "default": "",
+                "description": "晚上风力",
+                "title": "Nightpower",
+                "type": "string"
+              }
+            },
+            "title": "ForecastCastItem",
+            "type": "object"
+          },
+          "ForecastItem": {
+            "description": "预报天气一组（某城市多日）",
+            "properties": {
+              "city": {
+                "default": "",
+                "description": "城市名称",
+                "title": "City",
+                "type": "string"
+              },
+              "adcode": {
+                "default": "",
+                "description": "城市编码",
+                "title": "Adcode",
+                "type": "string"
+              },
+              "province": {
+                "default": "",
+                "description": "省份名称",
+                "title": "Province",
+                "type": "string"
+              },
+              "casts": {
+                "description": "当天起连续几日预报",
+                "items": {
+                  "$ref": "#/$defs/ForecastCastItem"
+                },
+                "title": "Casts",
+                "type": "array"
+              }
+            },
+            "title": "ForecastItem",
+            "type": "object"
+          },
+          "LiveWeatherItem": {
+            "description": "实况天气单条",
+            "properties": {
+              "province": {
+                "default": "",
+                "description": "省份名",
+                "title": "Province",
+                "type": "string"
+              },
+              "city": {
+                "default": "",
+                "description": "城市名",
+                "title": "City",
+                "type": "string"
+              },
+              "adcode": {
+                "default": "",
+                "description": "区域编码",
+                "title": "Adcode",
+                "type": "string"
+              },
+              "weather": {
+                "default": "",
+                "description": "天气现象（汉字描述）",
+                "title": "Weather",
+                "type": "string"
+              },
+              "temperature": {
+                "default": "",
+                "description": "实时气温，单位：摄氏度",
+                "title": "Temperature",
+                "type": "string"
+              },
+              "winddirection": {
+                "default": "",
+                "description": "风向描述",
+                "title": "Winddirection",
+                "type": "string"
+              },
+              "windpower": {
+                "default": "",
+                "description": "风力级别，单位：级",
+                "title": "Windpower",
+                "type": "string"
+              },
+              "humidity": {
+                "default": "",
+                "description": "空气湿度",
+                "title": "Humidity",
+                "type": "string"
+              }
+            },
+            "title": "LiveWeatherItem",
+            "type": "object"
+          }
+        },
+        "description": "天气查询结果",
+        "properties": {
+          "lives": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/LiveWeatherItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "实况天气（extensions=base 时返回）",
+            "title": "Lives"
+          },
+          "forecasts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/$defs/ForecastItem"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "预报天气（extensions=all 时返回）",
+            "title": "Forecasts"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "WeatherResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_ip_location",
+      "description": "高德地图 IP 定位服务。\n\n根据 IPv4 地址查询其所在省份、城市、adcode 及城市矩形范围。仅支持国内 IP；局域网返回「局域网」，非法或国外 IP 省/市为空。\n\nArgs:\n    ip: 待定位的 IPv4 地址（仅国内）。不填则使用请求方 IP。可选。\n\nReturns:\n    IpLocationResult: 成功时包含 province、city、adcode、rectangle；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "ip": {
+            "default": "",
+            "title": "Ip",
+            "type": "string"
+          }
+        },
+        "title": "amap_ip_locationArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "description": "IP 定位结果",
+        "properties": {
+          "province": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "省份名称。直辖市显示直辖市名；局域网 IP 返回「局域网」；非法或国外 IP 为空。",
+            "title": "Province"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "城市名称。直辖市显示直辖市名；局域网/非法/国外 IP 为空。",
+            "title": "City"
+          },
+          "adcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "城市 adcode 编码，可参考高德城市编码表。",
+            "title": "Adcode"
+          },
+          "rectangle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "所在城市矩形区域范围，左下右上坐标对。",
+            "title": "Rectangle"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "IpLocationResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_bus_stop_id",
+      "description": "高德地图公交站 ID 查询服务。\n\n通过公交站点 ID 查询该站详细信息，包括站名、经纬度、adcode、citycode 及途径此站的所有公交线路（线路名、首末站等）。\n\nArgs:\n    id: 公交站 id，必填。例如 BV10006672。\n\nReturns:\n    BusStopResult: 成功时 busstops 为公交站信息列表，每站含 id、name、location、adcode、citycode、buslines（线路列表）；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "amap_bus_stop_idArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "BusLineItem": {
+            "description": "途经该站的公交线路一条",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交线路唯一 id",
+                "title": "Id",
+                "type": "string"
+              },
+              "location": {
+                "default": "",
+                "description": "线路途径此站的经纬度",
+                "title": "Location",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "线路名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "start_stop": {
+                "default": "",
+                "description": "首发站",
+                "title": "Start Stop",
+                "type": "string"
+              },
+              "end_stop": {
+                "default": "",
+                "description": "末站",
+                "title": "End Stop",
+                "type": "string"
+              }
+            },
+            "title": "BusLineItem",
+            "type": "object"
+          },
+          "BusStopItem": {
+            "description": "公交站信息",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交站 id",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "公交站名",
+                "title": "Name",
+                "type": "string"
+              },
+              "location": {
+                "default": "",
+                "description": "经纬度",
+                "title": "Location",
+                "type": "string"
+              },
+              "adcode": {
+                "default": "",
+                "description": "城市 adcode",
+                "title": "Adcode",
+                "type": "string"
+              },
+              "citycode": {
+                "default": "",
+                "description": "城市 citycode",
+                "title": "Citycode",
+                "type": "string"
+              },
+              "buslines": {
+                "description": "途径此站的公交路线列表",
+                "items": {
+                  "$ref": "#/$defs/BusLineItem"
+                },
+                "title": "Buslines",
+                "type": "array"
+              }
+            },
+            "title": "BusStopItem",
+            "type": "object"
+          }
+        },
+        "description": "公交站 ID 查询结果",
+        "properties": {
+          "busstops": {
+            "description": "公交车站信息列表",
+            "items": {
+              "$ref": "#/$defs/BusStopItem"
+            },
+            "title": "Busstops",
+            "type": "array"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "BusStopResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_bus_line_id",
+      "description": "高德地图公交路线 ID 查询服务。\n\n通过公交线路 ID 查询该线路详细信息，包括线路名、类型、首末站、首末班时间、票价、途径站点（extensions=all 时）等。\n\nArgs:\n    id: 公交线路 id，必填。例如 131000010042。\n    extensions: base 返回基本信息；all 返回基本+途径站点、首末班车时间等。默认 base。\n\nReturns:\n    BusLineResult: 成功时 buslines 为线路列表，每项含 id、type、name、start_stop、end_stop、start_time、end_time、distance、busstops 等；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "extensions": {
+            "default": "base",
+            "title": "Extensions",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "title": "amap_bus_line_idArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "BusRouteItem": {
+            "description": "公交线路详情（公交路线 ID 查询单条）",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交线路 id",
+                "title": "Id",
+                "type": "string"
+              },
+              "type": {
+                "default": "",
+                "description": "公交类型，如普通公交、地铁、轻轨等",
+                "title": "Type",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "线路名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "polyline": {
+                "default": "",
+                "description": "坐标串",
+                "title": "Polyline",
+                "type": "string"
+              },
+              "citycode": {
+                "default": "",
+                "description": "城市 citycode",
+                "title": "Citycode",
+                "type": "string"
+              },
+              "start_stop": {
+                "default": "",
+                "description": "首发站",
+                "title": "Start Stop",
+                "type": "string"
+              },
+              "end_stop": {
+                "default": "",
+                "description": "末站",
+                "title": "End Stop",
+                "type": "string"
+              },
+              "start_time": {
+                "default": "",
+                "description": "首班车时间",
+                "title": "Start Time",
+                "type": "string"
+              },
+              "end_time": {
+                "default": "",
+                "description": "末班车时间",
+                "title": "End Time",
+                "type": "string"
+              },
+              "uicolor": {
+                "default": "",
+                "description": "线路 UI 颜色",
+                "title": "Uicolor",
+                "type": "string"
+              },
+              "timedesc": {
+                "default": "",
+                "description": "线路详细时间，JSON 串",
+                "title": "Timedesc",
+                "type": "string"
+              },
+              "distance": {
+                "default": "",
+                "description": "全程里程，单位：公里",
+                "title": "Distance",
+                "type": "string"
+              },
+              "loop": {
+                "default": "",
+                "description": "是否环线，0 否 1 是",
+                "title": "Loop",
+                "type": "string"
+              },
+              "status": {
+                "default": "",
+                "description": "线路状态，0 停运 1 正常 2 规划中 3 在建",
+                "title": "Status",
+                "type": "string"
+              },
+              "direc": {
+                "default": "",
+                "description": "反向线路 id",
+                "title": "Direc",
+                "type": "string"
+              },
+              "company": {
+                "default": "",
+                "description": "所属公司",
+                "title": "Company",
+                "type": "string"
+              },
+              "basic_price": {
+                "default": "",
+                "description": "起步价，单位：元",
+                "title": "Basic Price",
+                "type": "string"
+              },
+              "total_price": {
+                "default": "",
+                "description": "全程票价，单位：元",
+                "title": "Total Price",
+                "type": "string"
+              },
+              "bounds": {
+                "default": "",
+                "description": "矩形区域",
+                "title": "Bounds",
+                "type": "string"
+              },
+              "busstops": {
+                "description": "途径站，extensions=all 时返回",
+                "items": {
+                  "$ref": "#/$defs/BusStopInLine"
+                },
+                "title": "Busstops",
+                "type": "array"
+              }
+            },
+            "title": "BusRouteItem",
+            "type": "object"
+          },
+          "BusStopInLine": {
+            "description": "线路途径站一条",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交站 ID",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "公交站名",
+                "title": "Name",
+                "type": "string"
+              },
+              "location": {
+                "default": "",
+                "description": "公交站经纬度",
+                "title": "Location",
+                "type": "string"
+              },
+              "sequence": {
+                "default": "",
+                "description": "公交站序号",
+                "title": "Sequence",
+                "type": "string"
+              }
+            },
+            "title": "BusStopInLine",
+            "type": "object"
+          }
+        },
+        "description": "公交路线 ID 查询结果",
+        "properties": {
+          "buslines": {
+            "description": "公交线路信息列表",
+            "items": {
+              "$ref": "#/$defs/BusRouteItem"
+            },
+            "title": "Buslines",
+            "type": "array"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "BusLineResult",
+        "type": "object"
+      }
+    },
+    {
+      "name": "amap_bus_line_keyword",
+      "description": "高德地图公交路线关键字查询服务。\n\n通过公交线路名称（关键字）查询该线路的详细信息，支持分页。返回线路 id、类型、名称、首末站、坐标串等；extensions=all 时含途径站点、首末班时间等。\n\nArgs:\n    keywords: 查询关键字，只支持一个。必填。\n    city: 城市，城市名/citycode/adcode。必填。例如 110000（北京）。\n    offset: 每页记录数，默认 20，大于 100 按默认。可选。\n    page: 当前页，默认 1，最大 10。可选。\n    extensions: base 基本信息；all 基本+途径站点、首末班时间等。默认 base。可选。\n\nReturns:\n    BusLineKeywordResult: 成功时 buslines 为线路列表，每项结构同公交路线 ID 查询；失败时 error 为错误原因。\n",
+      "inputSchema": {
+        "properties": {
+          "keywords": {
+            "title": "Keywords",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "offset": {
+            "default": "20",
+            "title": "Offset",
+            "type": "string"
+          },
+          "page": {
+            "default": "1",
+            "title": "Page",
+            "type": "string"
+          },
+          "extensions": {
+            "default": "base",
+            "title": "Extensions",
+            "type": "string"
+          }
+        },
+        "required": [
+          "keywords",
+          "city"
+        ],
+        "title": "amap_bus_line_keywordArguments",
+        "type": "object"
+      },
+      "outputSchema": {
+        "$defs": {
+          "BusRouteItem": {
+            "description": "公交线路详情（公交路线 ID 查询单条）",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交线路 id",
+                "title": "Id",
+                "type": "string"
+              },
+              "type": {
+                "default": "",
+                "description": "公交类型，如普通公交、地铁、轻轨等",
+                "title": "Type",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "线路名称",
+                "title": "Name",
+                "type": "string"
+              },
+              "polyline": {
+                "default": "",
+                "description": "坐标串",
+                "title": "Polyline",
+                "type": "string"
+              },
+              "citycode": {
+                "default": "",
+                "description": "城市 citycode",
+                "title": "Citycode",
+                "type": "string"
+              },
+              "start_stop": {
+                "default": "",
+                "description": "首发站",
+                "title": "Start Stop",
+                "type": "string"
+              },
+              "end_stop": {
+                "default": "",
+                "description": "末站",
+                "title": "End Stop",
+                "type": "string"
+              },
+              "start_time": {
+                "default": "",
+                "description": "首班车时间",
+                "title": "Start Time",
+                "type": "string"
+              },
+              "end_time": {
+                "default": "",
+                "description": "末班车时间",
+                "title": "End Time",
+                "type": "string"
+              },
+              "uicolor": {
+                "default": "",
+                "description": "线路 UI 颜色",
+                "title": "Uicolor",
+                "type": "string"
+              },
+              "timedesc": {
+                "default": "",
+                "description": "线路详细时间，JSON 串",
+                "title": "Timedesc",
+                "type": "string"
+              },
+              "distance": {
+                "default": "",
+                "description": "全程里程，单位：公里",
+                "title": "Distance",
+                "type": "string"
+              },
+              "loop": {
+                "default": "",
+                "description": "是否环线，0 否 1 是",
+                "title": "Loop",
+                "type": "string"
+              },
+              "status": {
+                "default": "",
+                "description": "线路状态，0 停运 1 正常 2 规划中 3 在建",
+                "title": "Status",
+                "type": "string"
+              },
+              "direc": {
+                "default": "",
+                "description": "反向线路 id",
+                "title": "Direc",
+                "type": "string"
+              },
+              "company": {
+                "default": "",
+                "description": "所属公司",
+                "title": "Company",
+                "type": "string"
+              },
+              "basic_price": {
+                "default": "",
+                "description": "起步价，单位：元",
+                "title": "Basic Price",
+                "type": "string"
+              },
+              "total_price": {
+                "default": "",
+                "description": "全程票价，单位：元",
+                "title": "Total Price",
+                "type": "string"
+              },
+              "bounds": {
+                "default": "",
+                "description": "矩形区域",
+                "title": "Bounds",
+                "type": "string"
+              },
+              "busstops": {
+                "description": "途径站，extensions=all 时返回",
+                "items": {
+                  "$ref": "#/$defs/BusStopInLine"
+                },
+                "title": "Busstops",
+                "type": "array"
+              }
+            },
+            "title": "BusRouteItem",
+            "type": "object"
+          },
+          "BusStopInLine": {
+            "description": "线路途径站一条",
+            "properties": {
+              "id": {
+                "default": "",
+                "description": "公交站 ID",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "description": "公交站名",
+                "title": "Name",
+                "type": "string"
+              },
+              "location": {
+                "default": "",
+                "description": "公交站经纬度",
+                "title": "Location",
+                "type": "string"
+              },
+              "sequence": {
+                "default": "",
+                "description": "公交站序号",
+                "title": "Sequence",
+                "type": "string"
+              }
+            },
+            "title": "BusStopInLine",
+            "type": "object"
+          }
+        },
+        "description": "公交路线关键字查询结果",
+        "properties": {
+          "buslines": {
+            "description": "公交线路信息列表",
+            "items": {
+              "$ref": "#/$defs/BusRouteItem"
+            },
+            "title": "Buslines",
+            "type": "array"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "错误信息，仅在失败时存在",
+            "title": "Error"
+          }
+        },
+        "title": "BusLineKeywordResult",
+        "type": "object"
+      }
+    }
+  ],
+  "total_count": 16,
+  "generated_at": "2026-04-08 14:20:30"
+}

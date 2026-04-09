@@ -1,0 +1,19 @@
+# 与 agent.md §5.2 一致：用 uv 管理依赖；可用 `uv pip compile pyproject.toml -o requirements.txt` 导出锁定文件。
+[project]
+name = "agentic-poi-bench"
+version = "0.1.0"
+description = "AgenticPOIBench: LangGraph + LiteLLM POI search benchmark harness"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2",
+    "litellm>=1.0",
+    "pydantic>=2.0",
+    "pyyaml>=6.0",
+    # src/tools/amap_tools.py
+    "requests>=2.31",
+    "mcp>=1.0",
+    "fastmcp>=3.0",
+    "langchain-core>=0.3",
+    "tqdm>=4.66",
+]

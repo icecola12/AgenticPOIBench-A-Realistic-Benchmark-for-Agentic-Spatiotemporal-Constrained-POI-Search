@@ -1,26 +1,28 @@
 # AgenticPOIBench: A Realistic Benchmark for Agentic Spatiotemporal-Constrained POI Search
 
-**Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges.**AgenticPOIBench** offers a challenging POI search benchmark by introducing five features that better capture real-world agent behavior：
+**Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges. **AgenticPOIBench** offers a challenging POI search benchmark by introducing five features that better capture real-world agent behavior:
 
-- **Realistic Task Design** :An LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App, ensuring broad coverage of authentic search intentions.
+- **Broad Coverage of Authentic Intents**: We propose an LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App. This pipeline yields a comprehensive benchmark comprising 199 evaluation samples, which systematically spans 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
 
-- **Comprehensive Benchmark**:199 evaluation samples spanning 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
-
-- **Multi-turn and Task Oriented User-Agent Interaction**:A dynamic, multi-turn dialogue evaluation framework requiring agents to actively track conversational states, proactively elicit missing spatiotemporal constraints through clarifying questions, handle ambiguous or evolving inputs, and incrementally refine search strategies until the user's specific POI objective is successfully fulfilled.
+- **Multi-turn and Task Oriented User-Agent Interaction**: A dynamic, multi-turn dialogue evaluation framework requiring agents to actively track conversational states, proactively elicit missing constraints through clarifying questions, handle ambiguous or evolving inputs, and incrementally refine search strategies until the user's specific POI objective is successfully fulfilled.
 
 - **Live MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
 
 - **Automated Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
 
----这一块放最后我们总结好的优势表
+
+<p align="center">
+  <img src="pics/figure3.png" alt="Figure 3" width="80%" />
+</p>
+<p align="center"><em>Figure 3. Benchmark advantage dimensions (to be paired with the summary table at the end of the document). A hyphen (--) denotes not applicable.</em></p>
 
 ## Table of contents
-- overview
-- Benchmark Construction
-- Quick Start
-- Documentation
-- Project Structure
-- Citation
+
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Available Commands](#available-commands)
+- [Documentation](#documentation)
+- [Project Structure](#project-structure)
 
 ## Overview
 
@@ -34,76 +36,61 @@
 
 ## Quick Start
 
-*Quick Start instructions (environment setup, dependency installation, and how to run the benchmark) will be added in a future release. Please stay tuned.*
+### 1. Install
 
-## Benchmark Construction
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd <repository-directory>
+uv sync
+```
 
-<p align="center">
-  <img src="pics/figure1.jpg" alt="Figure 1" width="100%" />
-</p>
+This requires [uv](https://docs.astral.sh/uv/getting-started/installation/). If `./AgenticPOIBench` is not executable after clone, run `chmod +x AgenticPOIBench`.
 
-<p align="center"><em>Figure 1: Benchmark construction overview.</em></p>
+Without `uv`, use a virtual environment and pinned dependencies:
 
-### Real-world Intent Distribution
+```bash
+python3 -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-To ensure AgenticPOIBench reflects authentic user behavior, we analyzed millions of anonymized POI search queries from the Amap Platform. Through statistical analysis, we extracted core user intent constraints across three dimensions—**temporal**, **spatial**, and **semantic** —alongside real geographic coordinates sampled from user sessions. These *seed constraints* ground synthetic tasks in actual usage patterns while enabling systematic control over diversity and difficulty.
+### 2. Set up API keys
 
-### Hybrid Task Synthesis
+```bash
+export AMAP_MCP_KEY=...      # Amap / Gaode key for live MCP map tools
+export LITELLM_API_KEY=...   # LLM provider key (LiteLLM; any supported provider)
+```
 
-We employ a multi-agent collaborative framework to transform real-world signals into executable, multi-turn evaluation tasks. The pipeline comprises five specialized LLM-based agents:
+The environment variable names default to `AMAP_MCP_KEY` and `LITELLM_API_KEY`; you can rename them in `src/config/config.yaml` under the `env` section (`amap_key_env`, `llm_key_env`).
 
-| Agent | Role |
-|-------|------|
-| **Planner Agent** | Constructs verifiable POI search scenarios grounded in seed constraints, identifies ground-truth POIs via MCP tools, and generates verification protocols |
-| **Error Checking Agent** | Validates linguistic coherence, constraint coverage, and executes tool calls to confirm POI validity, initiating refinement loops when discrepancies arise |
-| **User Simulator** | Converts static instructions into dynamic, multi-turn dialogues with progressive constraint disclosure, mimicking authentic exploratory search behavior |
-| **Solving Agent** | Acts as the agent under test using randomly assigned SOTA models to prevent benchmark bias toward specific failure modes |
-| **Quality Control Agent** | Retains instances where the Solving Agent fails to retrieve valid POIs, ensuring the benchmark is difficult|
+### 3. Run an evaluation
 
-### Expert Validation
+```bash
+./AgenticPOIBench verify
+./AgenticPOIBench verify --resolve-secrets   # optional: validate config + secret resolution when keys are set
 
-Following automated generation, professional annotators curate samples against three criteria:
+./AgenticPOIBench dialogue --eval-index 0
+# Or a small index range:
+./AgenticPOIBench dialogue --start-index 0 --end-index 2
+```
 
-1. **Instruction fluency and realism**
-2. **Comprehensive constraint coverage** in verification protocols
-3. **Existence of valid POIs** confirmed via manual MCP execution
+Artifacts are written under `results/exp_<agent_model>_<UTC_timestamp>/`; dialogue JSON logs live in that directory’s `log/` subfolder (unless you pass `--artifact-dir`).
 
-Valid instances are translated into deterministic scripts establishing ground-truth answer sets for automated evaluation.
+**End-to-end vs. offline steps:** `dialogue` already runs the full benchmark loop for each sample: after the LangGraph dialogue finishes, the harness runs the POI extractor (judge), verification scripts, and reward, then writes task JSON (with an `evaluation` block) and `summary.json` when applicable. You do **not** need to invoke `extractor` or `evaluate` for a normal run. Use `extractor` / `evaluate` when you want to **recompute** scores on **existing** task artifacts (e.g. different extract model, re-run verify, batch re-judge) without repeating dialogue and MCP tool calls. `pass-at-k` repeats that same dialogue-plus-evaluation pipeline `k` times per task.
 
-### Dataset Statistics
+> **Tip:** Run `./AgenticPOIBench <COMMAND> --help` for full flags, or see [Available Commands](#available-commands) below. If the top-level parser interferes with script flags, use `./AgenticPOIBench dialogue -- --help`.
 
-AgenticPOIBench comprises **199** task instances spanning **25** atomic constraints (5 semantic, 12 spatial, 8 temporal). 
+## Available Commands
 
----
+| Command | Description |
+|---------|-------------|
+| `dialogue` | End-to-end: LangGraph user–agent dialogue(s), then judge, verify, and reward; writes `results/exp_<model>_<ts>/`, `log/`, and task JSON (or `--artifact-dir`). |
+| `extractor` | Run only the POI extractor / judge on one task JSON or a batch (by index); for offline reuse of saved trajectories. |
+| `evaluate` | Re-run judge, verification, and reward on existing outputs; optionally merge into the task JSON. |
+| `pass-at-k` | `k` independent end-to-end runs per task (each is dialogue + evaluation); optional Monte Carlo batches. |
+| `pass_at_k` | Alias for `pass-at-k`. |
+| `verify` | Check imports, config YAML, and optional secret resolution (e.g. `--resolve-secrets`). |
 
-## Evaluation Framework
-
-Dual-evaluation approach: **Programmatic Verification** (objective) + **LLM-based Judgment** (nuanced).
-
-### 1. Programmatic Metrics
-
-| Metric | Description |
-|--------|-------------|
-| **AR** | Achievement Rate - Task success allowing minor deviations |
-| **pass^k** | Robust completion requiring success in all $k$ consecutive trials ($k \in \{1,2,3\}$) |
-| **ATC** | Average Tool Calls - Lower is better (efficiency indicator) |
-
-*All metrics computed over 3 trials with temperature=0.*
-
-### 2. LLM-based Analysis
-
-**Constraint Coverage Rate (CCR)**
-
-$$\text{CCR} = \frac{\text{Exact constraints mentioned}}{\text{Total constraints}}$$
-
-Measures alignment between user instructions and simulator dialogue.
-
-**Failure Taxonomy**
-
-- **Tool**: Call failures, arg errors, selection errors, result misread
-- **Constraint**: Capture errors, application errors, state staleness  
-- **Output**: ID mapping errors, malformed outputs
-- **External**: User simulator early termination
+Use `./AgenticPOIBench <COMMAND> --help` for the target script’s full options. If parsing conflicts with top-level flags, insert `--` before script flags, e.g. `./AgenticPOIBench dialogue -- --help`.
 
 ---
 
@@ -111,15 +98,44 @@ Measures alignment between user instructions and simulator dialogue.
 
 ```
 AgenticPOIBench/
-├── samples/           # Contains the data samples for the benchmark(available now ✅)
-├── data/              # Contains the data for the benchmark
-├── results/           # Stores the benchmark's output, including evaluation scores and metrics
-├── verify_scripts/   # Stores all the verify scripts used for the benchmark automated verification
-└── src/               # Core functionality for the benchmark
-    └── models/        # Houses model provider classes
+├── AgenticPOIBench           # Repo-root CLI entry (bash → scripts/AgenticPOIBench.sh)
+├── pyproject.toml            # Project metadata and dependencies (uv)
+├── requirements.txt          # Pinned dependencies (pip / non-uv installs)
+├── uv.lock                   # Lockfile for uv
+├── README.md
+├── data/
+│   └── eval.json             # Benchmark eval tasks (default dataset; path configurable in config)
+├── scripts/
+│   ├── AgenticPOIBench.sh    # Invokes unified CLI with uv / venv / python3
+│   ├── agentic_poi_bench_cli.py
+│   ├── run_dialogue_once.py
+│   ├── run_extractor_once.py
+│   ├── run_evaluate_once.py
+│   ├── run_pass_at_k.py
+│   ├── verify_env.py
+│   └── setup_venv.sh
+├── verify_scripts/           # Per-task verification scripts (automated checks)
+├── pics/                     # Figures for the README
+├── results/                  # Created at runtime (experiment outputs; typically gitignored)
+└── src/
+    ├── cli_batch.py          # Shared batch CLI flags and progress UI
+    ├── concurrency.py        # MCP / LLM concurrency limits
+    ├── experiment_paths.py   # Naming and layout under results/exp_*
+    ├── config/               # config.yaml and settings loading
+    ├── data/                 # Eval records and eval JSON ingestion
+    ├── evaluation/           # Extractor, validator, completed-run evaluation, Pass@k summaries
+    ├── orchestration/        # LangGraph dialogue loop, Pass@k orchestration, run summaries
+    ├── persistence/          # Dialogue and task JSON read/write
+    ├── prompt/               # prompt.yaml (agent / user / extractor templates)
+    ├── simulation/           # User simulator and POI agent nodes
+    └── tools/                # Amap MCP integration helpers
 ```
 
-> **Note:** The `samples/` directory is now available with sample data. All other components (data, verify_scripts, evaluation pipeline, etc.) will be released in future updates. **Quick Start**, **Installation and Usage**, and **Evaluation Results** sections will also be supplemented in a future release.
+> **Note:** All benchmark task data for the default setup lives in `data/eval.json`; change `paths.eval_json` in `src/config/config.yaml` if you point to another file. The `results/` directory is produced by pipeline runs and is usually absent from a clean clone (often listed in `.gitignore`). Folders such as `temp/` or `test/` are for local reference or ad-hoc work only and are not part of the published repository layout.
+
+## Citation
+
+Citation (e.g. BibTeX) will be added in a future release.
 
 ---
 

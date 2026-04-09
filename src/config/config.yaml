@@ -1,0 +1,35 @@
+# Harness 与评测运行参数（路径相对于仓库根目录，除非写绝对路径）
+
+paths:
+  eval_json: data/eval.json
+  prompt_yaml: src/prompt/prompt.yaml
+  verify_scripts_dir: verify_scripts
+  output_dir: runs
+
+# 密钥仅从环境变量读取，变量名可在此配置（与 agent.md §5.1 一致：AMAP_MCP_KEY、LITELLM_API_KEY）
+env:
+  amap_key_env: AMAP_MCP_KEY
+  llm_key_env: LITELLM_API_KEY
+  llm_api_base_env: LLM_API_BASE
+
+llm:
+  # LiteLLM 模型 id；DeepSeek OpenAI 兼容示例：deepseek/deepseek-chat
+  user_model: deepseek/deepseek-chat
+  agent_model: deepseek/deepseek-chat
+  extract_model: deepseek/deepseek-chat
+  api_base: https://api.deepseek.com/v1
+  max_concurrent_llm: 4
+  temperature: 0.0
+  max_agent_tool_rounds: 16
+
+mcp:
+  # 进程内直接调用 amap_tools（与 MCP 工具集一致）；此项表示并发调用上限
+  max_concurrent_mcp: 2
+
+dialog:
+  max_turns: 30
+  stop_token: "###STOP###"
+
+runs:
+  num_repeats: 3
+  run_name: default

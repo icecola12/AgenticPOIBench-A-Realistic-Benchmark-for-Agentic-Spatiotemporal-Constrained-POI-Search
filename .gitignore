@@ -2,3 +2,6 @@
 .cursor
 __pycache__/
 *.py[cod]
+/temp
+/test
+/results

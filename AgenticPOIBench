@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Repo-root entry: pins cwd via scripts/AgenticPOIBench.sh and forwards to the unified CLI.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec "$ROOT/scripts/AgenticPOIBench.sh" "$@"
