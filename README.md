@@ -127,4 +127,9 @@ AgenticPOIBench/
 > **Note:** All benchmark task data for the default setup lives in `data/eval.json`; change `paths.eval_json` in `src/config/config.yaml` if you point to another file. 
 
 
+## Documents
 
+- [docs/](docs/) — supplementary documentation in the repository
+- [AMap MCP key setup](docs/get_amap_mcp/get_amap_mcp.md)
+- [Seed constraints (中文)](docs/seed_constraints/seed_constraints_cn.md)
+- [Seed constraints (English)](docs/seed_constraints/seed_constraints_en.md)
