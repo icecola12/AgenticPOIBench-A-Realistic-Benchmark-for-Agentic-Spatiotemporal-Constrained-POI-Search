@@ -16,13 +16,6 @@
 </p>
 <p align="center"><em>Benchmark advantage dimensions (to be paired with the summary table at the end of the document). A hyphen (--) denotes not applicable.</em></p>
 
-## Table of contents
-
-- [Overview](#overview)
-- [Quick Start](#quick-start)
-- [Available Commands](#available-commands)
-- [Documentation](#documentation)
-- [Project Structure](#project-structure)
 
 ## Overview
 
