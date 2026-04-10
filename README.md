@@ -66,7 +66,7 @@ The environment variable names default to `AMAP_MCP_KEY` and `LITELLM_API_KEY`; 
 ./AgenticPOIBench dialogue --start-index 0 --end-index 2
 ```
 
-**Models:** The commands above do not pass model ids on the CLI. Defaults come from `src/config/config.yaml` under `llm.user_model`, `llm.agent_model`, and `llm.extract_model` (LiteLLM model ids). For `dialogue` and `pass_hat_k`, override per run with `--user-model` and `--agent-model`. For `evaluate`, use `--extract-model` only (re-runs the judge/extractor on existing task JSON). For example:
+**Models:** The commands above do not pass model ids on the CLI. Defaults come from `src/config/config.yaml` under `llm.user_model`and `llm.agent_model` (LiteLLM model ids). For `dialogue` and `pass_hat_k`, override per run with `--user-model` and `--agent-model`. For example:
 
 ```bash
 ./AgenticPOIBench dialogue --eval-index 0 --agent-model openai/gpt-4o
