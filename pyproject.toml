@@ -1,4 +1,3 @@
-# 与 agent.md §5.2 一致：用 uv 管理依赖；可用 `uv pip compile pyproject.toml -o requirements.txt` 导出锁定文件。
 [project]
 name = "agentic-poi-bench"
 version = "0.1.0"
