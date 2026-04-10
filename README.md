@@ -32,8 +32,8 @@
 ### 1. Install
 
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd <repository-directory>
+git clone https://github.com/icecola12/AgenticPOIBench-A-Realistic-Benchmark-for-Agentic-Spatiotemporal-Constrained-POI-Search.git AgenticPOIBench
+cd AgenticPOIBench
 uv sync
 ```
 
