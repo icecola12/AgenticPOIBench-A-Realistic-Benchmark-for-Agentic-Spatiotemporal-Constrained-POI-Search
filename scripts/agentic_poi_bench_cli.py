@@ -18,14 +18,10 @@ _CLI_PROG = "AgenticPOIBench"
 
 _COMMAND_SCRIPTS: dict[str, str] = {
     "dialogue": "run_dialogue_once.py",
-    "extractor": "run_extractor_once.py",
     "evaluate": "run_evaluate_once.py",
-    "pass-at-k": "run_pass_at_k.py",
-    "pass_at_k": "run_pass_at_k.py",
+    "pass_hat_k": "run_pass_at_k.py",
     "verify": "verify_env.py",
 }
-
-_ALIASES_HELP = "Aliases: pass_at_k (same as pass-at-k)."
 
 _INDEX_HELP = (
     "Eval indices are 0-based (aligned with --eval-index in each script). "
@@ -34,10 +30,8 @@ _INDEX_HELP = (
 
 _COMMAND_HELP = {
     "dialogue": "Run LangGraph user–agent dialogue(s); write results/exp_<model>_<ts>/ and log/ under it (or --artifact-dir).",
-    "extractor": "Run POI extractor on one task JSON or a batch by eval index range.",
     "evaluate": "Run judge + verification + reward; optionally merge into task JSON.",
-    "pass-at-k": "Run Pass@k (k full pipeline repeats per task; optional Monte Carlo batches).",
-    "pass_at_k": "Same as pass-at-k.",
+    "pass_hat_k": "Run Pass@k (k full pipeline repeats per task; optional Monte Carlo batches).",
     "verify": "Verify imports, config YAML, and optional secret resolution.",
 }
 
@@ -76,19 +70,17 @@ def _build_parser() -> argparse.ArgumentParser:
             "Examples:\n"
             f"  ./{_CLI_PROG} dialogue --eval-index 0\n"
             f"  ./{_CLI_PROG} dialogue --start-index 1 --end-index 9\n"
-            f"  ./{_CLI_PROG} extractor --dialogue results/exp_.../task_1_manual.json\n"
             f"  ./{_CLI_PROG} evaluate --dry-run\n"
-            f"  ./{_CLI_PROG} pass-at-k --k 2 --eval-index 0\n"
+            f"  ./{_CLI_PROG} pass_hat_k --k 2 --eval-index 0\n"
             f"  ./{_CLI_PROG} verify --resolve-secrets\n"
             f"  ./{_CLI_PROG} dialogue -- --help   # optional `--` before script flags if needed\n"
             "\n"
             f"Direct `uv run python scripts/run_*.py` remains supported (legacy); prefer ./{_CLI_PROG}.\n"
-            f"{_ALIASES_HELP}\n"
             "\n"
             "Commands:\n"
             + "\n".join(
                 f"  {name:12} {_COMMAND_HELP.get(name, '')}"
-                for name in ("dialogue", "extractor", "evaluate", "pass-at-k", "pass_at_k", "verify")
+                for name in ("dialogue", "evaluate", "pass_hat_k", "verify")
             )
         ),
     )

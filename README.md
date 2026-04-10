@@ -66,9 +66,17 @@ The environment variable names default to `AMAP_MCP_KEY` and `LITELLM_API_KEY`; 
 ./AgenticPOIBench dialogue --start-index 0 --end-index 2
 ```
 
+**Models:** The commands above do not pass model ids on the CLI. Defaults come from `src/config/config.yaml` under `llm.user_model`, `llm.agent_model`, and `llm.extract_model` (LiteLLM model ids). For `dialogue` and `pass_hat_k`, override per run with `--user-model` and `--agent-model`. For `evaluate`, use `--extract-model` only (re-runs the judge/extractor on existing task JSON). For example:
+
+```bash
+./AgenticPOIBench dialogue --eval-index 0 --agent-model openai/gpt-4o
+```
+
+This matches the usage described in `scripts/run_dialogue_once.py`. Set `LITELLM_API_KEY` to a key valid for the provider you select.
+
 Artifacts are written under `results/exp_<agent_model>_<UTC_timestamp>/`; dialogue JSON logs live in that directory’s `log/` subfolder (unless you pass `--artifact-dir`).
 
-**End-to-end vs. offline steps:** `dialogue` already runs the full benchmark loop for each sample: after the LangGraph dialogue finishes, the harness runs the POI extractor (judge), verification scripts, and reward, then writes task JSON (with an `evaluation` block) and `summary.json` when applicable. You do **not** need to invoke `extractor` or `evaluate` for a normal run. Use `extractor` / `evaluate` when you want to **recompute** scores on **existing** task artifacts (e.g. different extract model, re-run verify, batch re-judge) without repeating dialogue and MCP tool calls. `pass-at-k` repeats that same dialogue-plus-evaluation pipeline `k` times per task.
+**End-to-end vs. offline steps:** `dialogue` already runs the full benchmark loop for each sample: after the LangGraph dialogue finishes, the harness runs the POI judge, verification scripts, and reward, then writes task JSON (with an `evaluation` block) and `summary.json` when applicable. 
 
 > **Tip:** Run `./AgenticPOIBench <COMMAND> --help` for full flags, or see [Available Commands](#available-commands) below. If the top-level parser interferes with script flags, use `./AgenticPOIBench dialogue -- --help`.
 
@@ -77,10 +85,8 @@ Artifacts are written under `results/exp_<agent_model>_<UTC_timestamp>/`; dialog
 | Command | Description |
 |---------|-------------|
 | `dialogue` | End-to-end: LangGraph user–agent dialogue(s), then judge, verify, and reward; writes `results/exp_<model>_<ts>/`, `log/`, and task JSON (or `--artifact-dir`). |
-| `extractor` | Run only the POI extractor / judge on one task JSON or a batch (by index); for offline reuse of saved trajectories. |
 | `evaluate` | Re-run judge, verification, and reward on existing outputs; optionally merge into the task JSON. |
-| `pass-at-k` | `k` independent end-to-end runs per task (each is dialogue + evaluation); optional Monte Carlo batches. |
-| `pass_at_k` | Alias for `pass-at-k`. |
+| `pass_hat_k` | `k` independent end-to-end runs per task (each is dialogue + evaluation); optional Monte Carlo batches. |
 | `verify` | Check imports, config YAML, and optional secret resolution (e.g. `--resolve-secrets`). |
 
 Use `./AgenticPOIBench <COMMAND> --help` for the target script’s full options. If parsing conflicts with top-level flags, insert `--` before script flags, e.g. `./AgenticPOIBench dialogue -- --help`.
@@ -102,7 +108,6 @@ AgenticPOIBench/
 │   ├── AgenticPOIBench.sh    # Invokes unified CLI with uv / venv / python3
 │   ├── agentic_poi_bench_cli.py
 │   ├── run_dialogue_once.py
-│   ├── run_extractor_once.py
 │   ├── run_evaluate_once.py
 │   ├── run_pass_at_k.py
 │   ├── verify_env.py
@@ -116,10 +121,10 @@ AgenticPOIBench/
     ├── experiment_paths.py   # Naming and layout under results/exp_*
     ├── config/               # config.yaml and settings loading
     ├── data/                 # Eval records and eval JSON ingestion
-    ├── evaluation/           # Extractor, validator, completed-run evaluation, Pass@k summaries
+    ├── evaluation/           # validator, completed-run evaluation, Pass^k summaries
     ├── orchestration/        # LangGraph dialogue loop, Pass@k orchestration, run summaries
     ├── persistence/          # Dialogue and task JSON read/write
-    ├── prompt/               # prompt.yaml (agent / user / extractor templates)
+    ├── prompt/               # prompt.yaml 
     ├── simulation/           # User simulator and POI agent nodes
     └── tools/                # Amap MCP integration helpers
 ```

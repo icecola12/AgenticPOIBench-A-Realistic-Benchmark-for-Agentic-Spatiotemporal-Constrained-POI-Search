@@ -1,5 +1,5 @@
 """
-Run the full dialogue + evaluation pipeline k times on one or more eval samples (Pass@k).
+Run the full dialogue + evaluation pipeline k times on one or more eval samples (Pass^k).
 
 Default artifacts and logs: one shared results/exp_<agent_model>_<timestamp>/ per CLI invocation
 (with a log/ subdirectory). Override with --artifact-dir.
@@ -8,6 +8,7 @@ Usage from repository root::
 
     export AMAP_MCP_KEY=...
     export LITELLM_API_KEY=...
+    ./AgenticPOIBench pass_hat_k --k 2 --eval-index 0
     uv run python scripts/run_pass_at_k.py
     uv run python scripts/run_pass_at_k.py --k 2 --eval-index 0
     uv run python scripts/run_pass_at_k.py --k 2 --agent-model openai/gpt-4o

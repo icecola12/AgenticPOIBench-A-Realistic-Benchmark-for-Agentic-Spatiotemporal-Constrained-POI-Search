@@ -1,6 +1,3 @@
-#!/usr/bin/env bash
-# 在仓库根目录创建/更新 .venv 并安装依赖（不依赖 uv）。可从任意目录调用：
-#   bash /path/to/repo/scripts/setup_venv.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
