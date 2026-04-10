@@ -2,13 +2,13 @@
 
 **Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges. **AgenticPOIBench** offers a challenging POI search benchmark by introducing four features that better capture real-world agent behavior:
 
-- **Broad Coverage of Authentic Intents**: We propose an LLM-aided data synthesis pipeline grounded in multi-dimensional constraints extracted from massive real-world user requests on the Amap App. This pipeline yields a comprehensive benchmark comprising 199 evaluation samples, which systematically spans 25 distinct atomic constraints across semantic, spatial, and temporal dimensions.
+- **Broad Coverage of Authentic Intents**: An LLM-aided pipeline generates a benchmark of 199 real-world samples, covering 25 semantic, spatial, and temporal constraints.
 
-- **Multi-turn and Task Oriented User-Agent Interaction**: A dynamic, multi-turn dialogue evaluation framework requiring agents to actively track conversational states, proactively elicit missing constraints through clarifying questions, handle ambiguous or evolving inputs, and incrementally refine search strategies until the user's specific POI objective is successfully fulfilled.
+- **Multi-turn and Task Oriented User-Agent Interaction**: A dynamic framework assesses the agent's ability to track dialogue states, actively elicit missing constraints, and iteratively refine searches.
 
 - **MCP Integration** — All tasks are executable through standard Model Context Protocol (MCP) interfaces connected to live map services from the Amap Platform, ensuring real-world evaluation.
 
-- **Reproducible Verification** — Executable verification scripts for rigorous, reproducible assessment of agent performance.
+- **Reproducible Verification** — Executable scripts are provided to ensure rigorous and reproducible performance assessments.
 
 
 <p align="center">
