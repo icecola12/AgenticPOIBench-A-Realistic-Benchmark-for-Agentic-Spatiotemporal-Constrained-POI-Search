@@ -103,7 +103,7 @@ AgenticPOIBench/
 ├── uv.lock                   # Lockfile for uv
 ├── README.md
 ├── data/
-│   └── eval.json             # Benchmark eval tasks (default dataset; path configurable in config)
+│   └── eval.json             # Benchmark eval tasks
 ├── scripts/
 │   ├── AgenticPOIBench.sh    # Invokes unified CLI with uv / venv / python3
 │   ├── agentic_poi_bench_cli.py
