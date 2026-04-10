@@ -2,7 +2,7 @@
 
 **Modern POI search** demands have evolved beyond simple queries toward complex, long-tail tasks involving intricate spatiotemporal and semantic constraints. **LLM-based agents** offer a promising paradigm for tackling these challenges. **AgenticPOIBench** offers a challenging POI search benchmark by introducing four features that better capture real-world agent behavior:
 
-- **Broad Coverage of Authentic Intents**: An LLM-aided pipeline generates a benchmark of 199 real-world samples, covering 25 semantic, spatial, and temporal constraints.
+- **Broad Coverage of Authentic Intents**: An LLM-aided pipeline generates a benchmark reflecting real-world user demands, comprising 199 samples and covering 25 semantic, spatial, and temporal constraints.
 
 - **Multi-turn and Task Oriented User-Agent Interaction**: A dynamic framework assesses the agent's ability to track dialogue states, actively elicit missing constraints, and iteratively refine searches.
 
@@ -130,6 +130,6 @@ AgenticPOIBench/
 ## Documents
 
 - [docs/](docs/) — supplementary documentation in the repository
-- [AMap MCP key setup](docs/get_amap_mcp/get_amap_mcp.md)
-- [Seed constraints (中文)](docs/seed_constraints/seed_constraints_cn.md)
-- [Seed constraints (English)](docs/seed_constraints/seed_constraints_en.md)
+- [Amap MCP key setup](docs/get_amap_mcp/get_amap_mcp.md) - How to get Amap MCP key
+- [Seed constraints (中文)](docs/seed_constraints/seed_constraints_cn.md) - Seed constraints used in data synthesis(cn)
+- [Seed constraints (English)](docs/seed_constraints/seed_constraints_en.md) - Seed constraints used in data synthesis(en)
